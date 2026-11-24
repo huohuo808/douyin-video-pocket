@@ -1,0 +1,3 @@
+import http from 'node:http';
+import app from '../worker/index.js';
+const server=http.createServer(async(req,res)=>{try{const parts=[];for await(const b of req)parts.push(b);const request=new Request('http://127.0.0.1:4318'+req.url,{method:req.method,headers:req.headers,...(parts.length?{body:Buffer.concat(parts)}:{})});const response=await app.fetch(request);res.writeHead(response.status,Object.fromEntries(response.headers));if(response.body){for await(const b of response.body)res.write(b);}res.end();}catch{res.writeHead(500);res.end('Server error');}});server.listen(4318,'127.0.0.1',()=>console.log('Local: http://127.0.0.1:4318'));
